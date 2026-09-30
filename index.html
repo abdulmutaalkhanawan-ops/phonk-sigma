@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGMA PHONK CLUB | NO UNCS ALLOWED</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Permanent Marker, Orbitron, Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Orbitron:wght@700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            phonkRed: '#FF0033',
+            phonkGreen: '#00FF66',
+            darkBg: '#050505',
+            cardBg: '#0b0b0f',
+          },
+          fontFamily: {
+            graffiti: ['"Permanent Marker"', 'cursive'],
+            orbitron: ['Orbitron', 'sans-serif'],
+            sans: ['Montserrat', 'sans-serif'],
+          },
+          animation: {
+            'pulse-fast': 'pulse 0.6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'laser-glow': 'laserGlow 1.2s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            laserGlow: {
+              '0%': { filter: 'drop-shadow(0 0 5px #FF0033) drop-shadow(0 0 15px #FF0033)' },
+              '100%': { filter: 'drop-shadow(0 0 15px #00FF66) drop-shadow(0 0 30px #00FF66)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #050505;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050505;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FF0033;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00FF66;
+    }
+
+    /* Neon & Glow Helpers */
+    .glow-red {
+      text-shadow: 0 0 10px #FF0033, 0 0 25px #FF0033, 0 0 45px #FF0033;
+    }
+    .glow-green {
+      text-shadow: 0 0 10px #00FF66, 0 0 25px #00FF66, 0 0 45px #00FF66;
+    }
+    .box-glow-red {
+      box-shadow: 0 0 25px rgba(255, 0, 51, 0.35), inset 0 0 15px rgba(255, 0, 51, 0.2);
+    }
+    .box-glow-green {
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.35), inset 0 0 15px rgba(0, 255, 102, 0.2);
+    }
+
+    /* Background Grid Pattern */
+    .grid-bg {
+      background-size: 35px 35px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    /* Laser beams styling */
+    .laser-beam-left {
+      position: absolute;
+      top: -20%;
+      left: 15%;
+      width: 4px;
+      height: 150%;
+      background: linear-gradient(180deg, transparent, #FF0033, transparent);
+      transform: rotate(32deg);
+      opacity: 0.7;
+      box-shadow: 0 0 20px #FF0033;
+      pointer-events: none;
+    }
+    .laser-beam-right {
+      position: absolute;
+      top: -20%;
+      right: 15%;
+      width: 4px;
+      height: 150%;
+      background: linear-gradient(180deg, transparent, #00FF66, transparent);
+      transform: rotate(-32deg);
+      opacity: 0.7;
+      box-shadow: 0 0 20px #00FF66;
+      pointer-events: none;
+    }
+
+    /* Laser Cursor Trail */
+    .laser-dot {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00FF66;
+      box-shadow: 0 0 15px #00FF66, 0 0 30px #00FF66;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.1s, height 0.1s;
+    }
+  </style>
+</head>
+<body class="grid-bg font-sans min-h-screen flex flex-col justify-between selection:bg-phonkRed selection:text-white">
+
+  <!-- Laser Pointer Effect -->
+  <div id="laserCursor" class="laser-dot hidden md:block"></div>
+
+  <!-- Background Animated Canvas -->
+  <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+  
+  <!-- Laser Beam Decorative Elements -->
+  <div class="laser-beam-left animate-pulse"></div>
+  <div class="laser-beam-right animate-pulse" style="animation-delay: 0.5s;"></div>
+
+  <header class="relative z-20 border-b border-white/10 bg-black/80 backdrop-blur-md sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-skull text-3xl text-phonkRed animate-pulse"></i>
+        <span class="font-orbitron font-black text-xl md:text-2xl tracking-wider text-white">
+          SIGMA<span class="text-phonkRed">PHONK</span><span class="text-phonkGreen font-graffiti text-lg ml-1">CLUB</span>
+        </span>
+      </div>
+      
+      <nav class="hidden md:flex space-x-8 text-xs font-orbitron font-bold uppercase tracking-widest">
+        <a href="#hero" class="hover:text-phonkGreen transition-colors">Home</a>
+        <a href="#rules" class="hover:text-phonkRed transition-colors">Rules & Age</a>
+        <a href="#battles" class="hover:text-phonkGreen transition-colors">Huss Battles</a>
+        <a href="#player" class="hover:text-phonkRed transition-colors">Phonk Deck</a>
+      </nav>
+
+      <!-- RICKROLL TICKET LINK -->
+      <div>
+        <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll bg-phonkRed hover:bg-red-600 text-white font-orbitron font-extrabold text-xs px-5 py-3 rounded-none uppercase tracking-widest border border-phonkRed shadow-[0_0_20px_rgba(255,0,51,0.8)] transition-all transform hover:scale-105 inline-flex items-center gap-2">
+          <i class="fa-solid fa-ticket"></i> GET PASS
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10 flex-grow">
+
+    <section id="hero" class="relative py-20 px-4 text-center overflow-hidden flex flex-col items-center justify-center min-h-[85vh]">
+      
+      <!-- Glow Aura -->
+      <div class="absolute w-[500px] h-[500px] bg-phonkRed/15 rounded-full blur-[140px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+      <!-- Trollface Meme Avatar with Laser Eyes -->
+      <div class="relative mb-6 cursor-pointer transform hover:scale-105 transition-transform" id="trollhead" onclick="triggerLaserSound()">
+        <div class="w-40 h-40 md:w-52 md:h-52 rounded-full border-2 border-phonkRed/60 bg-black/90 flex items-center justify-center relative box-glow-red overflow-hidden">
+          <svg class="w-32 h-32 md:w-40 md:h-40 text-white" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 10 C 25 10, 10 30, 10 50 C 10 75, 25 90, 50 90 C 75 90, 90 75, 90 50 C 90 30, 75 10, 50 10 Z M 35 40 A 5 5 0 1 1 35 30 A 5 5 0 1 1 35 40 Z M 65 40 A 5 5 0 1 1 65 30 A 5 5 0 1 1 65 40 Z M 30 65 Q 50 85 70 65 Q 50 70 30 65 Z" fill="none" stroke="currentColor" stroke-width="4"/>
+            <circle cx="35" cy="35" r="4" fill="#FF0033"/>
+            <circle cx="65" cy="35" r="4" fill="#FF0033"/>
+          </svg>
+          <!-- Eye Laser Beams -->
+          <div class="absolute top-[38%] left-[32%] w-[320px] h-1.5 bg-phonkRed shadow-[0_0_12px_#FF0033] -rotate-45 pointer-events-none origin-left animate-pulse"></div>
+          <div class="absolute top-[38%] right-[32%] w-[320px] h-1.5 bg-phonkRed shadow-[0_0_12px_#FF0033] rotate-45 pointer-events-none origin-right animate-pulse"></div>
+        </div>
+        <span class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-phonkGreen text-black font-extrabold text-[11px] uppercase px-4 py-1 rounded-full font-orbitron border border-black shadow-[0_0_15px_#00FF66] tracking-wider">
+          THOSE WHO KNOW
+        </span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-orbitron text-5xl md:text-8xl font-black tracking-tighter uppercase mb-2 glow-red italic">
+        SIGMA PHONK CLUB
+      </h1>
+
+      <!-- Graffiti Tags -->
+      <div class="my-4 flex flex-wrap justify-center gap-4 items-center">
+        <span class="font-graffiti text-3xl md:text-5xl text-phonkGreen glow-green -rotate-3 transform inline-block">
+          YEAR 11 & BELOW ONLY
+        </span>
+        <span class="font-graffiti text-3xl md:text-5xl text-phonkRed glow-red rotate-2 border-2 border-phonkRed px-4 py-1 bg-black/90 inline-block box-glow-red">
+          NO UNCS ALLOWED
+        </span>
+      </div>
+
+      <p class="max-w-2xl text-gray-400 text-sm md:text-base font-semibold mt-4 tracking-wide uppercase">
+        The ultimate underground haven for Brazilian Phonk, aggressive Drift Cowbells, and Daily Huss Battles. 
+        <span class="text-phonkGreen font-bold">Strictly Year 11 & Below</span>.
+      </p>
+
+      <!-- RICKROLL ACTION BUTTONS -->
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll bg-phonkRed text-white font-orbitron font-extrabold px-8 py-4 uppercase tracking-widest box-glow-red hover:bg-red-600 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-ticket text-xl"></i> CLAIM VIP TICKET
+        </a>
+        <button onclick="document.getElementById('uncModal').classList.remove('hidden')" class="border border-phonkGreen text-phonkGreen font-orbitron font-extrabold px-8 py-4 uppercase tracking-widest box-glow-green hover:bg-phonkGreen hover:text-black transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-shield-halved text-xl"></i> TEST UNC STATUS
+        </button>
+      </div>
+
+    </section>
+
+    <section id="rules" class="py-16 px-4 max-w-6xl mx-auto">
+      <div class="bg-cardBg border-2 border-phonkRed/40 p-8 rounded-2xl box-glow-red relative overflow-hidden">
+        
+        <div class="text-center mb-8">
+          <span class="bg-phonkRed/20 text-phonkRed font-mono text-xs px-4 py-1.5 rounded-full border border-phonkRed/50 uppercase tracking-widest">
+            STRICT ADMISSION PROTOCOL
+          </span>
+          <h2 class="font-orbitron text-3xl md:text-4xl font-black text-white mt-3 uppercase">
+            ENTRY RULES & UNC DETECTION
+          </h2>
+          <p class="font-graffiti text-phonkGreen text-2xl mt-1">#NO_UNCS #YEAR11_MAX</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div class="bg-black/80 border border-white/10 p-6 rounded-xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 text-phonkGreen font-orbitron font-bold text-lg mb-3">
+                <i class="fa-solid fa-circle-check text-2xl"></i>
+                <span>ELIGIBLE SIGMAS (ALLOWED)</span>
+              </div>
+              <ul class="space-y-3 text-sm text-gray-300 font-mono">
+                <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-phonkGreen"></i> School Year 11 & Below (Ages 11–16)</li>
+                <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-phonkGreen"></i> Valid Student ID or School Portal Pass</li>
+                <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-phonkGreen"></i> Maximum Phonk / Huss Battle Aura</li>
+              </ul>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/10 font-graffiti text-phonkGreen text-sm">
+              VERIFIED UNDER-16 SAFE HAVEN
+            </div>
+          </div>
+
+          <div class="bg-black/80 border border-phonkRed/30 p-6 rounded-xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 text-phonkRed font-orbitron font-bold text-lg mb-3">
+                <i class="fa-solid fa-ban text-2xl"></i>
+                <span>UNC STATUS (STRICTLY BANNED)</span>
+              </div>
+              <ul class="space-y-3 text-sm text-gray-300 font-mono">
+                <li class="flex items-center gap-2"><i class="fa-solid fa-xmark text-phonkRed"></i> Year 12, University, or Older</li>
+                <li class="flex items-center gap-2"><i class="fa-solid fa-xmark text-phonkRed"></i> Anyone exhibiting Unc Aura or Boomer energy</li>
+                <li class="flex items-center gap-2"><i class="fa-solid fa-xmark text-phonkRed"></i> Immediate ejection by Laser Scanner Bouncers</li>
+              </ul>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/10 font-graffiti text-phonkRed text-sm">
+              ZERO TOLERANCE FOR UNCLE STATUS
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="battles" class="py-16 px-4 max-w-6xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="font-orbitron text-4xl md:text-5xl font-black text-white glow-green uppercase">
+          DAILY HUSS BATTLES
+        </h2>
+        <p class="font-graffiti text-phonkRed text-2xl mt-1 -rotate-1">
+          DANCE & SIGMA AURA SHOWDOWN • 100% LIVE
+        </p>
+      </div>
+
+      <!-- Live Battle Arena Box -->
+      <div class="bg-cardBg border-2 border-phonkGreen/50 p-6 md:p-10 rounded-2xl box-glow-green relative mb-12">
+        
+        <!-- Countdown Banner -->
+        <div class="flex flex-col md:flex-row justify-between items-center bg-black/90 p-4 rounded-xl border border-white/10 mb-8 gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 bg-phonkRed rounded-full animate-ping"></span>
+            <span class="font-orbitron text-xs md:text-sm font-bold text-phonkRed tracking-wider uppercase">NEXT LIVE HUSS BATTLE:</span>
+          </div>
+          <div id="countdownTimer" class="font-orbitron font-black text-2xl text-phonkGreen tracking-widest">
+            04 : 12 : 39
+          </div>
+        </div>
+
+        <!-- Matchup Display -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative">
+          
+          <!-- VS Badge Center -->
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:block">
+            <span class="bg-phonkRed text-white font-orbitron font-black text-2xl px-5 py-3 rounded-full border-2 border-black box-glow-red italic">
+              VS
+            </span>
+          </div>
+
+          <!-- Fighter 1 -->
+          <div class="bg-black/80 p-6 rounded-xl border border-phonkRed/40 text-center relative overflow-hidden group">
+            <div class="text-phonkRed font-orbitron text-xs font-bold mb-1">DEFENDING CHAMPION</div>
+            <div class="font-orbitron text-2xl font-black text-white mb-2">DRIFT_KING_99</div>
+            <div class="font-graffiti text-phonkGreen text-xl mb-4">"BRAZILian Cowbell Step"</div>
+            <div class="text-xs text-gray-400 font-mono mb-4">AURA SCORE: <span id="scoreFighter1" class="text-phonkGreen font-bold">14,290</span></div>
+            <button onclick="voteFighter(1)" class="w-full bg-phonkRed hover:bg-red-600 text-white font-orbitron font-bold py-3 uppercase text-xs tracking-widest transition-all box-glow-red">
+              <i class="fa-solid fa-fire mr-1"></i> VOTE SIGMA AURA
+            </button>
+          </div>
+
+          <!-- Fighter 2 -->
+          <div class="bg-black/80 p-6 rounded-xl border border-phonkGreen/40 text-center relative overflow-hidden group">
+            <div class="text-phonkGreen font-orbitron text-xs font-bold mb-1">CHALLENGER</div>
+            <div class="font-orbitron text-2xl font-black text-white mb-2">HUSS_PHONK_GOD</div>
+            <div class="font-graffiti text-phonkRed text-xl mb-4">"Phonk Shuffle & Stomp"</div>
+            <div class="text-xs text-gray-400 font-mono mb-4">AURA SCORE: <span id="scoreFighter2" class="text-phonkGreen font-bold">13,850</span></div>
+            <button onclick="voteFighter(2)" class="w-full bg-phonkGreen hover:bg-green-500 text-black font-orbitron font-bold py-3 uppercase text-xs tracking-widest transition-all box-glow-green">
+              <i class="fa-solid fa-fire mr-1"></i> VOTE SIGMA AURA
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="player" class="py-16 px-4 max-w-5xl mx-auto">
+      <div class="bg-cardBg border border-white/10 p-6 md:p-8 rounded-2xl box-glow-red relative">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-6 mb-6 gap-4">
+          <div>
+            <h2 class="font-orbitron text-2xl font-black text-white flex items-center gap-3">
+              <i class="fa-solid fa-compact-disc text-phonkRed animate-spin" style="animation-duration: 4s;"></i> PHONK SYNTH BEAT DECK
+            </h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider">Live Web Audio 808 Synth & Distortion Controller</p>
+          </div>
+          <span id="audioStatus" class="text-xs font-mono px-3 py-1 bg-red-950 text-phonkRed border border-phonkRed/40 rounded-full">
+            OFFLINE
+          </span>
+        </div>
+
+        <!-- Visualizer Canvas -->
+        <div class="bg-black border border-white/10 h-28 rounded-xl mb-6 relative overflow-hidden">
+          <canvas id="visCanvas" class="w-full h-full"></canvas>
+        </div>
+
+        <!-- Controls Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <button id="masterPlayBtn" class="bg-phonkRed hover:bg-red-600 text-white font-orbitron font-black py-4 px-6 rounded-xl flex items-center justify-center gap-3 text-base transition-all box-glow-red">
+            <i class="fa-solid fa-play"></i> <span>START BEAT LOOP</span>
+          </button>
+
+          <button onclick="triggerLaserSound()" class="bg-gray-900 hover:bg-phonkGreen/20 border border-phonkGreen text-phonkGreen font-orbitron font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-bolt"></i> LASER SOUND FX
+          </button>
+
+          <!-- RICKROLL LINK IN AUDIO PLAYER -->
+          <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll bg-phonkGreen hover:bg-green-500 text-black font-orbitron font-black py-4 px-6 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider box-glow-green">
+            <i class="fa-solid fa-ticket"></i> DOWNLOAD TRACK PASS
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div id="uncModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-cardBg border-2 border-phonkRed p-8 rounded-2xl max-w-md w-full box-glow-red relative">
+      <button onclick="document.getElementById('uncModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <i class="fa-solid fa-shield-cat text-4xl text-phonkRed mb-2"></i>
+        <h3 class="font-orbitron font-black text-2xl text-white uppercase">UNC TEST SCANNER</h3>
+        <p class="text-xs text-gray-400 mt-1">ANSWER ACCURATELY TO PROVE NON-UNC STATUS</p>
+      </div>
+
+      <div id="uncQuestionBox" class="space-y-4">
+        <p class="text-sm font-semibold text-gray-200">Question: What is the correct protocol when the Brazilian Phonk cowbell drops?</p>
+        <button onclick="checkUncAnswer(true)" class="w-full bg-black hover:bg-phonkGreen/20 border border-phonkGreen text-phonkGreen font-orbitron text-xs font-bold py-3 px-4 rounded text-left transition-all">
+          A) Lock in with maximum Sigma stance & Huss shuffle
+        </button>
+        <button onclick="checkUncAnswer(false)" class="w-full bg-black hover:bg-phonkRed/20 border border-phonkRed text-phonkRed font-orbitron text-xs font-bold py-3 px-4 rounded text-left transition-all">
+          B) Complain about volume and ask for lawn mowing tips
+        </button>
+      </div>
+
+      <div id="uncResult" class="hidden mt-4 text-center font-orbitron font-bold"></div>
+    </div>
+  </div>
+
+  <footer class="relative z-10 border-t border-white/10 bg-black/90 py-8 px-4 text-center">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="font-orbitron text-xs text-gray-400">
+        SIGMA PHONK CLUB © 2026 • YEAR 11 & BELOW ONLY
+      </div>
+      <div class="font-graffiti text-phonkRed text-xl">
+        NO UNCS ALLOWED
+      </div>
+      <div class="flex space-x-4 text-gray-400">
+        <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll hover:text-phonkGreen transition-colors"><i class="fa-brands fa-youtube text-xl"></i></a>
+        <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll hover:text-phonkRed transition-colors"><i class="fa-brands fa-tiktok text-xl"></i></a>
+        <a href="https://www.youtube.com/watch?dQw4w9WgXcQ" target="_blank" class="ticket-rickroll hover:text-phonkGreen transition-colors"><i class="fa-brands fa-discord text-xl"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Laser Cursor Tracking */
+    const laserCursor = document.getElementById('laserCursor');
+    document.addEventListener('mousemove', (e) => {
+      if (laserCursor) {
+        laserCursor.style.left = `${e.clientX}px`;
+        laserCursor.style.top = `${e.clientY}px`;
+      }
+    });
+
+    /* Background Particle Animation */
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.color = Math.random() > 0.5 ? '#FF0033' : '#00FF66';
+        this.alpha = Math.random() * 0.5 + 0.2;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* Web Audio API Synth Engine */
+    let audioCtx = null;
+    let isPlaying = false;
+    let beatTimer = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function triggerLaserSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function playCowbellNote(freq) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.5, audioCtx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.12);
+    }
+
+    document.getElementById('masterPlayBtn').addEventListener('click', () => {
+      initAudio();
+      isPlaying = !isPlaying;
+      const status = document.getElementById('audioStatus');
+
+      if (isPlaying) {
+        let step = 0;
+        beatTimer = setInterval(() => {
+          const notes = [800, 900, 1050, 800, 1200];
+          playCowbellNote(notes[step % notes.length]);
+          step++;
+        }, 180);
+
+        status.innerText = 'PLAYING 165 BPM';
+        status.className = 'text-xs font-mono px-3 py-1 bg-green-950 text-phonkGreen border border-phonkGreen/40 rounded-full';
+      } else {
+        clearInterval(beatTimer);
+        status.innerText = 'OFFLINE';
+        status.className = 'text-xs font-mono px-3 py-1 bg-red-950 text-phonkRed border border-phonkRed/40 rounded-full';
+      }
+    });
+
+    /* Huss Battles Score Handler */
+    let f1Score = 14290;
+    let f2Score = 13850;
+
+    function voteFighter(num) {
+      if (num === 1) {
+        f1Score += 100;
+        document.getElementById('scoreFighter1').innerText = f1Score.toLocaleString();
+      } else {
+        f2Score += 100;
+        document.getElementById('scoreFighter2').innerText = f2Score.toLocaleString();
+      }
+      triggerLaserSound();
+    }
+
+    /* UNC Verification Logic */
+    function checkUncAnswer(isSigma) {
+      const res = document.getElementById('uncResult');
+      res.classList.remove('hidden');
+      if (isSigma) {
+        res.innerText = 'VERIFIED SIGMA! ACCESS GRANTED.';
+        res.className = 'mt-4 text-center font-orbitron font-bold text-phonkGreen text-sm';
+      } else {
+        res.innerText = 'UNC DETECTED! EJECTION INITIATED.';
+        res.className = 'mt-4 text-center font-orbitron font-bold text-phonkRed text-sm';
+      }
+    }
+
+    /* Rickroll Redirect Enforcement */
+    document.querySelectorAll('.ticket-rickroll').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.open('https://www.youtube.com/watch?dQw4w9WgXcQ', '_blank');
+      });
+    });
+  </script>
+</body>
+</html>
